@@ -3,11 +3,9 @@ from datetime import datetime
 from pymongo import MongoClient
 import pprint
 
-# продумать, проипсикать заложить новые поля
-
 REMOTE_CSV_PATH = '/root/myfirstvps/utilities/reminder/reminders.csv'
 LOCAL_CSV_PATH = '/tmp/reminders.csv'
-DEBUG_CSV_PATH = 'reminders.csv'
+DEBUG_CSV_PATH = 'reminders_example.csv'
 
 def main():
     # get_csv_from_vps()

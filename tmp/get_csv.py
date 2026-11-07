@@ -1,3 +1,10 @@
-def get_csv_from_vps():
-    command = ['scp', f'myfirstvps:{REMOTE_CSV_PATH}', LOCAL_CSV_PATH]
-    subprocess.run(command)
+import subprocess
+import os
+
+base_path = os.path.dirname(__file__)
+os.chdir(base_path)
+
+remote_csv_path = '/root/myfirstvps/utilities/reminder/reminders.csv'
+
+command = ['scp', f'myfirstvps:{remote_csv_path}', base_path]
+subprocess.run(command)

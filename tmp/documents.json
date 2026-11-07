@@ -1,0 +1,62 @@
+[
+    {
+        "auto_postpone": false,
+        "sended": false,
+        "datetime_activate": {
+            "$date": "2026-10-07T00:00:00Z"
+        },
+        "datetime_create": {
+            "$date": "2026-11-07T15:29:10.378Z"
+        },
+        "datetime_send": null,
+        "archived": false,
+        "oneshot": false,
+        "board": "work",
+        "link_to_wekan_card": null,
+        "periodic": {
+            "type": "static",
+            "unit": "day",
+            "number": 7
+        }
+    },
+    {
+        "auto_postpone": false,
+        "sended": false,
+        "datetime_activate": {
+            "$date": "2026-11-08T00:00:00Z"
+        },
+        "datetime_create": {
+            "$date": "2026-11-07T15:29:10.378Z"
+        },
+        "datetime_send": null,
+        "archived": false,
+        "oneshot": false,
+        "board": "home",
+        "link_to_wekan_card": null,
+        "periodic": {
+            "type": "static",
+            "unit": "month",
+            "number": 2
+        }
+    },
+    {
+        "auto_postpone": false,
+        "sended": false,
+        "datetime_activate": {
+            "$date": "2026-12-09T00:00:00Z"
+        },
+        "datetime_create": {
+            "$date": "2026-11-07T15:29:10.378Z"
+        },
+        "datetime_send": null,
+        "archived": false,
+        "oneshot": false,
+        "board": "work",
+        "link_to_wekan_card": null,
+        "periodic": {
+            "type": "static",
+            "unit": "year",
+            "number": 1
+        }
+    }
+]

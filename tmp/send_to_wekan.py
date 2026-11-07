@@ -1,20 +1,21 @@
+import os
 import json
 import requests
 import dotenv
 
+base_path = os.path.dirname(__file__)
+os.chdir(base_path)
 dotenv.load_dotenv()
 
-WEKAN_URL = 'https://wekan.usachborodach.ru'
-
 def get_token():
-    auth_url = f'{WEKAN_URL}/users/login'
-    auth_data = {'username': 'agorbov', 'password': 'Sven159357258'}
+    auth_url = f'{os.getenv('WEKAN_URL')}/users/login'
+    auth_data = {'username': os.getenv('WEKAN_LOGIN'), 'password': os.getenv('WEKAN_PASSWORD')}
     response = requests.post(auth_url, data=auth_data).text
     return json.loads(response)['token']
 
 def post_card(title, board_name, token):
     post_the_card_url = (
-        f'{WEKAN_URL}/api/'
+        f'{os.getenv('WEKAN_URL')}/api/'
         f'boards/{ids["boards"][board_name]}/'
         f'lists/{ids["lists"][board_name]}/cards'
     )

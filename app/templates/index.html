@@ -7,11 +7,14 @@
     .table td { border-color: #3a3a3a; vertical-align: middle; }
     .table tbody tr:hover { background-color: #3d3d3d; }
 
-    /* Фиксированная раскладка + colgroup */
     .reminder-table { table-layout: fixed; width: 100%; }
     .reminder-table .col-text {
         word-break: break-word;
         overflow-wrap: anywhere;
+    }
+    .reminder-table .col-activate {
+        white-space: nowrap;
+        font-size: 0.82rem;
     }
     .reminder-table .col-actions .btn {
         padding: 0.15rem 0.45rem;
@@ -57,18 +60,18 @@
     <div class="table-responsive">
         <table class="table table-bordered align-middle reminder-table">
             <colgroup>
-                <col style="width: 20%;">   <!-- Текст -->
-                <col style="width: 7%;">    <!-- Доска -->
-                <col style="width: 13%;">   <!-- Активация -->
-                <col style="width: 11%;">   <!-- Период -->
-                <col style="width: 12%;">   <!-- Статус -->
-                <col style="width: 37%;">   <!-- Действия -->
+                <col style="width: 58%;">   <!-- Текст -->
+                <col style="width: 4%;">    <!-- Доска -->
+                <col style="width: 8%;">    <!-- Активация -->
+                <col style="width: 6%;">    <!-- Период -->
+                <col style="width: 6%;">    <!-- Статус -->
+                <col style="width: 18%;">   <!-- Действия -->
             </colgroup>
             <thead>
                 <tr>
                     <th>Текст</th>
                     <th>Доска</th>
-                    <th>Активация ({{ tz }})</th>
+                    <th>Активация</th>
                     <th>Период</th>
                     <th>Статус</th>
                     <th>Действия</th>
@@ -85,7 +88,7 @@
                         {% endif %}
                     </td>
                     <td><span class="badge bg-secondary">{{ r.board }}</span></td>
-                    <td>{{ r.activate_local.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td class="col-activate">{{ r.activate_local.strftime('%d.%m.%Y %H:%M') }}</td>
                     <td>
                         {{ r.periodic_label }}
                         {% if r.oneshot %}<span class="badge badge-oneshot ms-1">oneshot</span>{% endif %}

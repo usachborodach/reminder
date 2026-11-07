@@ -56,14 +56,21 @@ def parse_row(row: dict, now: datetime) -> dict:
         # Одноразовое, уже отправленное в прошлом — сразу в архив.
         if sended_in_csv and activate <= now:
             archived = True
-    else:
-        # fast_forward ТОЛЬКО для auto_postpone=True.
-        # Для auto_postpone=False запись — трекинг по карточке:
-        # оставляем activate_datetime в прошлом, чтобы она
-        # отображалась как «просрочено», и пользователь сам решил,
-        # что с ней делать (отправить / отложить / архивировать).
-        if auto and activate <= now:
+    elif auto:
+        # Авто-отправка: fast_forward обязателен (иначе catch-up пачкой).
+        # sended игнорируем — начнём с чистого листа.
+        if activate <= now:
             activate = fast_forward(activate, periodic, now)
+        sended = False
+    else:
+        # Трекинг по карточке (auto=0):
+        #   sended=1 → карточка уже создана старой утилитой, висит в Wekan,
+        #              не пересоздаём. Пользователь сам найдёт её в Wekan
+        #              и закроет, а потом нажмёт «Отложить» здесь.
+        #   sended=0 → сработает штатно, когда наступит дата.
+        # activate_datetime не трогаем — «просроченные» должны оставаться
+        # в прошлом, чтобы было видно, что они ждут внимания.
+        sended = sended_in_csv
 
     return {
         'text': row['text'].replace('\\n', '\n'),

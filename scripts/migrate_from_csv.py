@@ -50,9 +50,6 @@ def parse_row(row: dict, now: datetime) -> dict:
     activate = datetime.strptime(row['date'], '%Y.%m.%d')
 
     archived = False
-    # В новой логике sended — это "ждём закрытия карточки". У старых записей
-    # link_to_wekan_card нет, поэтому держать sended=True бессмысленно (такие
-    # записи ни под одно правило планировщика не попадают и висят вечно).
     sended = False
 
     if oneshot:
@@ -60,9 +57,12 @@ def parse_row(row: dict, now: datetime) -> dict:
         if sended_in_csv and activate <= now:
             archived = True
     else:
-        # Периодическое с датой в прошлом — промотать вперёд,
-        # иначе планировщик на первом же тике отправит всё разом.
-        if activate <= now:
+        # fast_forward ТОЛЬКО для auto_postpone=True.
+        # Для auto_postpone=False запись — трекинг по карточке:
+        # оставляем activate_datetime в прошлом, чтобы она
+        # отображалась как «просрочено», и пользователь сам решил,
+        # что с ней делать (отправить / отложить / архивировать).
+        if auto and activate <= now:
             activate = fast_forward(activate, periodic, now)
 
     return {

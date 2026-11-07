@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}reminder · архив{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span class="navbar-brand">reminder · архив</span>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-light btn-sm">← К списку</a>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    {% if not reminders %}
+        <div class="alert alert-info">Архив пуст.</div>
+    {% else %}
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Текст</th>
+                    <th>Доска</th>
+                    <th>Активация ({{ tz }})</th>
+                    <th>Период</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reminders %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('main.reminder_edit', rid=r.id_str) }}"
+                           class="text-decoration-none text-light">{{ r.text }}</a>
+                    </td>
+                    <td>{{ r.board }}</td>
+                    <td>{{ r.activate_local.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>{{ r.periodic_label }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('main.reminder_unarchive', rid=r.id_str) }}" class="d-inline">
+                            <button class="btn btn-outline-secondary btn-sm">Вернуть</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}reminder · календарь{% endblock %}
+
+{% block extra_css %}
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-head { font-weight: 600; text-align: center; padding: 6px; color: #b0b0b0; }
+    .cal-cell {
+        background-color: #2d2d2d; border: 1px solid #3a3a3a; border-radius: 6px;
+        min-height: 100px; padding: 4px; font-size: 0.78rem;
+    }
+    .cal-cell.other-month { opacity: 0.4; }
+    .cal-daynum { font-weight: 700; color: #d0d0d0; margin-bottom: 4px; }
+    .cal-event {
+        display: block; color: #e0e0e0; text-decoration: none;
+        padding: 1px 3px; border-radius: 3px; margin-bottom: 2px;
+        background-color: #3a3a3a; border-left: 3px solid #0d6efd;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cal-event.approx { border-left-color: #6c757d; color: #a0a0a0; }
+    .cal-event:hover { background-color: #4a4a4a; color: #fff; }
+    .cal-event .time { color: #888; font-size: 0.7rem; margin-right: 3px; }
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span class="navbar-brand">reminder · календарь</span>
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-light btn-sm me-2">Список</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Выйти</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a class="btn btn-outline-secondary btn-sm"
+           href="{{ url_for('main.calendar', month=prev_month) }}">← {{ prev_month }}</a>
+        <h4 class="mb-0">{{ month_start.strftime('%B %Y') }}</h4>
+        <a class="btn btn-outline-secondary btn-sm"
+           href="{{ url_for('main.calendar', month=next_month_key) }}">{{ next_month_key }} →</a>
+    </div>
+
+    <div class="cal-grid mb-2">
+        <div class="cal-head">Пн</div>
+        <div class="cal-head">Вт</div>
+        <div class="cal-head">Ср</div>
+        <div class="cal-head">Чт</div>
+        <div class="cal-head">Пт</div>
+        <div class="cal-head">Сб</div>
+        <div class="cal-head">Вс</div>
+    </div>
+
+    <div class="cal-grid">
+        {% for week in weeks %}
+            {% for day in week %}
+                <div class="cal-cell {% if not day.in_month %}other-month{% endif %}">
+                    <div class="cal-daynum">{{ day.date.strftime('%d') }}</div>
+                    {% for ev in day.events %}
+                        <a class="cal-event {% if ev.approximate %}approx{% endif %}"
+                           href="{{ url_for('main.reminder_edit', rid=ev.reminder_id) }}"
+                           title="{{ ev.text }}{% if ev.approximate %} (~приблизительно){% endif %}">
+                            <span class="time">{{ ev.time }}</span>{{ ev.text|truncate(30) }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <p class="text-muted small mt-3">
+        Серым — приблизительные сработки (зависят от закрытия карточки в Wekan).
+        Время — {{ tz }}.
+    </p>
+</div>
+{% endblock %}

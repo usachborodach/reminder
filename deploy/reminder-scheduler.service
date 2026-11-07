@@ -1,0 +1,19 @@
+[Unit]
+Description=Reminder Scheduler (background processor)
+After=network.target mongod.service
+Requires=reminder.service
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/reminder
+EnvironmentFile=/root/reminder/.env
+Environment=FLASK_ENV=production
+
+ExecStart=/root/reminder/.venv/bin/python scripts/scheduler.py
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}reminder · {% if reminder %}редактировать{% else %}создать{% endif %}{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span class="navbar-brand">reminder · {% if reminder %}редактирование{% else %}создание{% endif %}</span>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-light btn-sm">← К списку</a>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Текст</label>
+                        <input type="text" name="text" class="form-control" value="{{ form.text }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Доска Wekan</label>
+                        <select name="board" class="form-select" required>
+                            {% for board_name in boards.keys() %}
+                                <option value="{{ board_name }}" {% if form.board == board_name %}selected{% endif %}>
+                                    {{ board_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Описание (в карточку Wekan, опционально)</label>
+                        <textarea name="description" class="form-control" rows="2">{{ form.description }}</textarea>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Дата активации ({{ tz }})</label>
+                        <input type="datetime-local" name="activate_datetime" class="form-control"
+                               value="{{ form.activate_datetime }}" required>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="form-check">
+                            <input type="checkbox" name="auto_postpone" id="auto_postpone"
+                                   class="form-check-input"
+                                   {% if form.auto_postpone %}checked{% endif %}>
+                            <label class="form-check-label" for="auto_postpone">
+                                Автооткладывание (не следить за карточкой)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="form-check">
+                            <input type="checkbox" name="oneshot" id="oneshot"
+                                   class="form-check-input" onchange="toggleOneshot()"
+                                   {% if form.oneshot %}checked{% endif %}>
+                            <label class="form-check-label" for="oneshot">
+                                Одноразовое (после отправки в архив)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12" id="periodicBlock">
+                        <hr>
+                        <h6 class="text-muted">Периодичность</h6>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label class="form-label small">Тип</label>
+                                <select name="periodic_type" id="periodic_type"
+                                        class="form-select" onchange="togglePeriodic()">
+                                    <option value="static" {% if form.periodic_type == 'static' %}selected{% endif %}>статический</option>
+                                    <option value="random" {% if form.periodic_type == 'random' %}selected{% endif %}>random</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9" id="staticBlock">
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <label class="form-label small">Количество</label>
+                                        <input type="number" name="periodic_number" min="1"
+                                               class="form-control" value="{{ form.periodic_number }}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small">Единица</label>
+                                        <select name="periodic_unit" class="form-select">
+                                            {% for u, label in [('day','день'),('week','неделя'),('month','месяц'),('year','год')] %}
+                                                <option value="{{ u }}" {% if form.periodic_unit == u %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9" id="randomBlock">
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <label class="form-label small">min дней</label>
+                                        <input type="number" name="mindays" min="1"
+                                               class="form-control" value="{{ form.mindays }}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label small">max дней</label>
+                                        <input type="number" name="maxdays" min="1"
+                                               class="form-control" value="{{ form.maxdays }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn btn-primary">Сохранить</button>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+
+            {% if reminder and reminder.link_to_wekan_card %}
+            <hr>
+            <p class="mb-0 text-muted small">
+                Связана с карточкой Wekan: <code>{{ reminder.link_to_wekan_card }}</code>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePeriodic() {
+    const t = document.getElementById('periodic_type').value;
+    document.getElementById('staticBlock').style.display = (t === 'static') ? '' : 'none';
+    document.getElementById('randomBlock').style.display = (t === 'random') ? '' : 'none';
+}
+function toggleOneshot() {
+    document.getElementById('periodicBlock').style.display =
+        document.getElementById('oneshot').checked ? 'none' : '';
+}
+document.addEventListener('DOMContentLoaded', function () {
+    togglePeriodic();
+    toggleOneshot();
+});
+</script>
+{% endblock %}

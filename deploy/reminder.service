@@ -1,0 +1,24 @@
+[Unit]
+Description=Reminder Flask Service
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root/reminder
+EnvironmentFile=/root/reminder/.env
+Environment=FLASK_ENV=production
+
+ExecStartPre=/root/reminder/.venv/bin/flask --app wsgi create-index
+
+ExecStart=/root/reminder/.venv/bin/gunicorn \
+    -w 2 --timeout 120 \
+    --access-logfile /var/log/reminder/access.log \
+    --error-logfile /var/log/reminder/error.log \
+    -b 127.0.0.1:8002 wsgi:app
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

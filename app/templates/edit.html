@@ -1,6 +1,49 @@
 {% extends "base.html" %}
 {% block title %}reminder · {% if reminder %}редактировать{% else %}создать{% endif %}{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+<style>
+    /* Flatpickr под нашу тёмную тему */
+    .flatpickr-calendar {
+        background: #2d2d2d;
+        border: 1px solid #3a3a3a;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .flatpickr-calendar.arrowTop::before,
+    .flatpickr-calendar.arrowTop::after { border-bottom-color: #3a3a3a; }
+    .flatpickr-calendar.arrowBottom::before,
+    .flatpickr-calendar.arrowBottom::after { border-top-color: #3a3a3a; }
+    .flatpickr-months .flatpickr-month,
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month { fill: #e0e0e0; color: #e0e0e0; }
+    .flatpickr-months .flatpickr-prev-month:hover svg,
+    .flatpickr-months .flatpickr-next-month:hover svg { fill: #0d6efd; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year { color: #e0e0e0; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months option { background: #2d2d2d; }
+    .flatpickr-current-month .numInputWrapper span::after { border-top-color: #e0e0e0; }
+    .flatpickr-current-month .numInputWrapper span::before { border-bottom-color: #e0e0e0; }
+    .flatpickr-weekdays,
+    .flatpickr-weekday { color: #888; }
+    .flatpickr-day { color: #e0e0e0; }
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay { color: #666; }
+    .flatpickr-day:hover,
+    .flatpickr-day:focus { background: #3a3a3a; border-color: #3a3a3a; }
+    .flatpickr-day.today { border-color: #6c757d; }
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover { background: #0d6efd; border-color: #0d6efd; color: #fff; }
+    .flatpickr-time { background: #2d2d2d; border-top: 1px solid #3a3a3a; }
+    .flatpickr-time input,
+    .flatpickr-time .flatpickr-am-pm { color: #e0e0e0; background: transparent; }
+    .flatpickr-time input:hover,
+    .flatpickr-time .flatpickr-am-pm:hover { background: #3a3a3a; }
+    .flatpickr-time .numInputWrapper span::after { border-top-color: #e0e0e0; }
+    .flatpickr-time .numInputWrapper span::before { border-bottom-color: #e0e0e0; }
+</style>
+{% endblock %}
+
 {% block body %}
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
@@ -42,8 +85,9 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Дата активации ({{ tz }})</label>
-                        <input type="datetime-local" name="activate_datetime" class="form-control"
-                               value="{{ form.activate_datetime }}" required>
+                        <input type="text" name="activate_datetime" id="activate_datetime"
+                               class="form-control" value="{{ form.activate_datetime }}"
+                               required autocomplete="off" placeholder="дд.мм.гггг чч:мм">
                     </div>
 
                     <div class="col-md-4 d-flex align-items-end">
@@ -133,6 +177,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ru.js"></script>
 <script>
 function togglePeriodic() {
     const t = document.getElementById('periodic_type').value;
@@ -143,9 +189,36 @@ function toggleOneshot() {
     document.getElementById('periodicBlock').style.display =
         document.getElementById('oneshot').checked ? 'none' : '';
 }
+
 document.addEventListener('DOMContentLoaded', function () {
     togglePeriodic();
     toggleOneshot();
+
+    // Замена нативного datetime-local на Flatpickr:
+    //  - locale ru → понедельник первый
+    //  - time_24hr true → формат 24h (20:49, не 08:49 PM)
+    //  - altInput → пользователь видит дд.мм.гггг чч:мм,
+    //    скрытый input остаётся в ISO-формате для сервера
+    if (window.flatpickr) {
+        const fp = flatpickr('#activate_datetime', {
+            locale: 'ru',
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: 'Y-m-d\\TH:i',
+            altInput: true,
+            altFormat: 'd.m.Y H:i',
+            minuteIncrement: 1,
+            allowInput: true,
+            disableMobile: true,
+        });
+
+        // Скрытый input получает type="hidden" и не валидируется
+        // браузером по required — переносим флаг на видимый altInput
+        if (fp && fp.altInput) {
+            fp.altInput.required = true;
+            fp.altInput.classList.add('form-control');
+        }
+    }
 });
 </script>
 {% endblock %}

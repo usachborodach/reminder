@@ -1,5 +1,8 @@
 import json
 import requests
+import dotenv
+
+dotenv.load_dotenv()
 
 WEKAN_URL = 'https://wekan.usachborodach.ru'
 

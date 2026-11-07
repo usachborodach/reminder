@@ -79,7 +79,13 @@ def send_and_postpone(reminder: dict) -> None:
         log_event(reminder, 'archived_auto')
         return
 
-    next_dt = compute_next_activate(reminder.get('periodic'), reminder['activate_datetime'])
+    next_dt = reminder['activate_datetime']
+    for _ in range(365):
+        if next_dt > now:
+            break
+        next_dt = compute_next_activate(reminder.get('periodic'), next_dt)
+    else:
+        next_dt = compute_next_activate(reminder.get('periodic'), now)
     reminders().update_one(
         {'_id': reminder['_id']},
         {'$set': {

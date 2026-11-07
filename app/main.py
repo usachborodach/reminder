@@ -72,8 +72,6 @@ def calendar():
 
     # окно 2 месяца в local, переводим в UTC для сравнения
     win_start = local_to_utc(month_start, tz)
-    win_end = local_to_utc(next_month + timedelta(days=32), tz)
-    win_end = win_end.replace(day=1)  # 1-е число следующего месяца
 
     # ограничим окно концом следующего месяца
     if next_month.month == 12:
@@ -254,6 +252,7 @@ def reminder_new():
         'periodic_unit': 'day',
         'mindays': 6,
         'maxdays': 11,
+        'oneshot': ''
     }
     return render_template(
         'edit.html', reminder=None, form=form,
@@ -322,9 +321,12 @@ def reminder_postpone(rid):
         if raw:
             new_local = datetime.strptime(raw, '%Y-%m-%dT%H:%M')
         else:
-            # без явного значения — отложить по periodic от текущего activate
             base = max(r['activate_datetime'], now_utc())
-            new_local = utc_to_local(compute_next_activate(r.get('periodic'), base), tz)
+            nxt = compute_next_activate(r.get('periodic'), base)
+            if nxt is None:
+                flash('Для одноразового напоминания укажите дату', 'danger')
+                return redirect(url_for('main.index'))
+            new_local = utc_to_local(nxt, tz)
     except ValueError:
         flash('Неверная дата', 'danger')
         return redirect(url_for('main.index'))
@@ -387,5 +389,6 @@ def reminder_send(rid):
         flash('Отправлено', 'success')
     except Exception as e:
         logger.exception("Manual send failed for %s", oid)
+        log_event(r, 'send_failed', {'error': str(e)})
         flash(f'Ошибка отправки: {e}', 'danger')
     return redirect(url_for('main.index'))

@@ -240,23 +240,29 @@ def reminder_new():
         return redirect(url_for('main.index'))
 
     # GET — дефолт
-    default = datetime.now().replace(second=0, microsecond=0) + timedelta(hours=1)
+    boards = current_app.config['WEKAN_BOARDS']
+    default_board = 'work' if 'work' in boards else next(iter(boards), '')
+
+    # Завтра 00:00 в локальной таймзоне (сервер может быть в UTC)
+    now_local = utc_to_local(now_utc(), tz)
+    default_dt = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
+
     form = {
         'text': '',
         'description': '',
-        'board': next(iter(current_app.config['WEKAN_BOARDS']), ''),
-        'activate_datetime': default.strftime('%Y-%m-%dT%H:%M'),
-        'auto_postpone': 'on',
+        'board': default_board,
+        'activate_datetime': default_dt.strftime('%Y-%m-%dT%H:%M'),
+        'auto_postpone': '',   # выключено
+        'oneshot': 'on',       # включено
         'periodic_type': 'static',
         'periodic_number': 1,
         'periodic_unit': 'day',
         'mindays': 6,
         'maxdays': 11,
-        'oneshot': ''
     }
     return render_template(
         'edit.html', reminder=None, form=form,
-        boards=current_app.config['WEKAN_BOARDS'], tz=tz,
+        boards=boards, tz=tz,
     )
 
 

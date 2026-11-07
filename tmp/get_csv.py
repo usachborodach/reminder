@@ -6,5 +6,5 @@ os.chdir(base_path)
 
 remote_csv_path = '/root/myfirstvps/utilities/reminder/reminders.csv'
 
-command = ['scp', f'myfirstvps:{remote_csv_path}', base_path]
+command = ['scp', '-O', f'myfirstvps:{remote_csv_path}', base_path]
 subprocess.run(command)

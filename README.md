@@ -171,7 +171,7 @@ python3 -c "from werkzeug.security import generate_password_hash; print(generate
 
 ```bash
 source .venv/bin/activate
-python scripts/migrate_from_csv.py tmp/reminders.csv --wipe
+python3 scripts/migrate_from_csv.py tmp/reminders.csv --wipe
 ```
 
 - `--wipe` — предварительно очистить коллекцию `reminders` (события в `events` не трогаются).

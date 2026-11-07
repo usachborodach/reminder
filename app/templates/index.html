@@ -14,8 +14,8 @@
         overflow-wrap: anywhere;
     }
     .reminder-table .col-actions .btn {
-        padding: 0.2rem 0.5rem;
-        font-size: 0.8rem;
+        padding: 0.15rem 0.45rem;
+        font-size: 0.78rem;
         white-space: nowrap;
     }
 
@@ -57,12 +57,12 @@
     <div class="table-responsive">
         <table class="table table-bordered align-middle reminder-table">
             <colgroup>
-                <col style="width: 25%;">   <!-- Текст -->
+                <col style="width: 20%;">   <!-- Текст -->
                 <col style="width: 7%;">    <!-- Доска -->
-                <col style="width: 14%;">   <!-- Активация -->
-                <col style="width: 12%;">   <!-- Период -->
+                <col style="width: 13%;">   <!-- Активация -->
+                <col style="width: 11%;">   <!-- Период -->
                 <col style="width: 12%;">   <!-- Статус -->
-                <col style="width: 30%;">   <!-- Действия -->
+                <col style="width: 37%;">   <!-- Действия -->
             </colgroup>
             <thead>
                 <tr>
@@ -103,6 +103,8 @@
                     </td>
                     <td class="col-actions">
                         <div class="d-flex gap-1 flex-wrap">
+                            <a href="{{ url_for('main.reminder_edit', rid=r.id_str) }}"
+                               class="btn btn-outline-info btn-sm">Редактировать</a>
                             <form method="post" action="{{ url_for('main.reminder_postpone', rid=r.id_str) }}">
                                 <button class="btn btn-outline-secondary btn-sm">Отложить</button>
                             </form>

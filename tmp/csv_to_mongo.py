@@ -26,10 +26,6 @@ def processing(documents):
         document['card_id'] = None
     return documents
 
-def get_csv_from_vps():
-    command = ['scp', f'myfirstvps:{REMOTE_CSV_PATH}', LOCAL_CSV_PATH]
-    subprocess.run(command)
-
 def csv_to_documents(csv_path):
     file = open(csv_path)
     content = file.read()

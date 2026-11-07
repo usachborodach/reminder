@@ -17,9 +17,9 @@ def processing(data):
         document = dict()
         document['auto_postpone'] = bool_map[item['auto']]
         document['sended'] = bool_map[item['sended']]
-        document['datetime_activate'] = datetime.strptime(item['date'], '%Y.%m.%d')
-        document['datetime_create'] = datetime.now()
-        document['datetime_send'] = None
+        document['activate_datetime'] = datetime.strptime(item['date'], '%Y.%m.%d')
+        document['create_datetime'] = datetime.now()
+        document['last_send_datetime'] = None
         document['archived'] = False
         document['oneshot'] = False
         document['board'] = item['board']

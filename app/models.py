@@ -70,7 +70,7 @@ def send_and_postpone(reminder: dict) -> None:
         reminders().update_one(
             {'_id': reminder['_id']},
             {'$set': {
-                'sended': True,
+                'sended': False,
                 'last_send_datetime': now,
                 'archived': True,
             }},

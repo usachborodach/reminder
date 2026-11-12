@@ -62,7 +62,12 @@ def _post_card(reminder: dict) -> str:
 
 
 def send_and_postpone(reminder: dict) -> None:
-    """auto_postpone=True: отправить карточку и сразу отложить."""
+    """auto_postpone=True: отправить карточку и сразу отложить.
+
+    После отправки `sended` остаётся False — напоминание снова ждёт
+    следующей сработки в будущем. `last_send_datetime` фиксирует факт
+    отправки для истории.
+    """
     card_id = _post_card(reminder)
     now = now_utc()
 
@@ -70,7 +75,7 @@ def send_and_postpone(reminder: dict) -> None:
         reminders().update_one(
             {'_id': reminder['_id']},
             {'$set': {
-                'sended': False,
+                'sended': True,
                 'last_send_datetime': now,
                 'archived': True,
             }},
@@ -89,7 +94,7 @@ def send_and_postpone(reminder: dict) -> None:
     reminders().update_one(
         {'_id': reminder['_id']},
         {'$set': {
-            'sended': True,
+            'sended': False,
             'last_send_datetime': now,
             'activate_datetime': next_dt,
         }},

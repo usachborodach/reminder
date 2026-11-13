@@ -60,12 +60,12 @@
     <div class="table-responsive">
         <table class="table table-bordered align-middle reminder-table">
             <colgroup>
-                <col style="width: 53%;">   <!-- Текст -->
+                <col style="width: 58%;">   <!-- Текст -->
                 <col style="width: 4%;">    <!-- Доска -->
                 <col style="width: 8%;">    <!-- Активация -->
-                <col style="width: 5%;">    <!-- Период -->
-                <col style="width: 10%;">    <!-- Статус -->
-                <col style="width: 20%;">   <!-- Действия -->
+                <col style="width: 6%;">    <!-- Период -->
+                <col style="width: 6%;">    <!-- Статус -->
+                <col style="width: 18%;">   <!-- Действия -->
             </colgroup>
             <thead>
                 <tr>
@@ -79,7 +79,7 @@
             </thead>
             <tbody>
                 {% for r in reminders %}
-                <tr class="{% if r.is_due and not r.sended %}row-due{% endif %}">
+                <tr class="{% if r.is_due %}row-due{% endif %}">
                     <td class="col-text">
                         <a href="{{ url_for('main.reminder_edit', rid=r.id_str) }}"
                            class="text-decoration-none text-light">{{ r.text }}</a>
@@ -94,12 +94,16 @@
                         {% if r.oneshot %}<span class="badge badge-oneshot ms-1">oneshot</span>{% endif %}
                     </td>
                     <td>
-                        {% if r.sended and r.link_to_wekan_card %}
+                        {% if r.is_due %}
+                            <span class="badge badge-due">просрочено</span>
+                            {% if r.sended and r.link_to_wekan_card %}
+                                <span class="badge badge-tracked ms-1"
+                                      title="Карточка создана в Wekan, ждёт закрытия">в Wekan</span>
+                            {% endif %}
+                        {% elif r.sended and r.link_to_wekan_card %}
                             <span class="badge badge-tracked">ждёт закрытия карточки</span>
                         {% elif r.sended %}
                             <span class="badge badge-auto">отправлено</span>
-                        {% elif r.is_due %}
-                            <span class="badge badge-due">просрочено</span>
                         {% else %}
                             <span class="badge badge-pending">ожидание</span>
                         {% endif %}

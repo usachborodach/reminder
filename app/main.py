@@ -41,7 +41,7 @@ def index():
     tz = _tz()
     for d in docs:
         d['id_str'] = str(d['_id'])
-        d['periodic_label'] = 'одноразово' if d.get('oneshot') else describe_periodic(d.get('periodic'))
+        d['periodic_label'] = describe_periodic(d.get('periodic'))
         d['is_due'] = d['activate_datetime'] <= now
         d['activate_local'] = utc_to_local(d['activate_datetime'], tz)
     return render_template('index.html', reminders=docs, tz=tz)
@@ -142,7 +142,7 @@ def archived():
     tz = _tz()
     for d in docs:
         d['id_str'] = str(d['_id'])
-        d['periodic_label'] = 'одноразово' if d.get('oneshot') else describe_periodic(d.get('periodic'))
+        d['periodic_label'] = describe_periodic(d.get('periodic'))
         d['activate_local'] = utc_to_local(d['activate_datetime'], tz)
     return render_template('archived.html', reminders=docs, tz=tz)
 
@@ -243,9 +243,10 @@ def reminder_new():
     boards = current_app.config['WEKAN_BOARDS']
     default_board = 'work' if 'work' in boards else next(iter(boards), '')
 
-    # Завтра 00:00 в локальной таймзоне (сервер может быть в UTC)
     now_local = utc_to_local(now_utc(), tz)
-    default_dt = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
+    default_dt = (now_local + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0,
+    )
 
     form = {
         'text': '',
@@ -323,16 +324,21 @@ def reminder_postpone(rid):
 
     tz = _tz()
     raw = request.form.get('new_datetime') or ''
+    if raw:
+        new_local = datetime.strptime(raw, '%Y-%m-%dT%H:%M')
+        new_utc = local_to_utc(new_local, tz)
+    else:
+        next_dt = compute_next_activate(r.get('periodic'), now_utc())
+        if next_dt is None:
+            flash('Для одноразового напоминания укажите дату', 'danger')
+            return redirect(url_for('main.index'))
+    new_utc = next_dt
     try:
         if raw:
             new_local = datetime.strptime(raw, '%Y-%m-%dT%H:%M')
         else:
             base = max(r['activate_datetime'], now_utc())
-            nxt = compute_next_activate(r.get('periodic'), base)
-            if nxt is None:
-                flash('Для одноразового напоминания укажите дату', 'danger')
-                return redirect(url_for('main.index'))
-            new_local = utc_to_local(nxt, tz)
+            new_local = utc_to_local(compute_next_activate(r.get('periodic'), base), tz)
     except ValueError:
         flash('Неверная дата', 'danger')
         return redirect(url_for('main.index'))

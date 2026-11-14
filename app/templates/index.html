@@ -22,11 +22,6 @@
         white-space: nowrap;
     }
 
-    .badge-due { background-color: #b02a37; }
-    .badge-pending { background-color: #6c757d; }
-    .badge-auto { background-color: #0d6efd; }
-    .badge-tracked { background-color: #198754; }
-    .badge-oneshot { background-color: #6f42c1; }
     .row-due td { background-color: rgba(176, 42, 55, 0.12); }
 {% endblock %}
 
@@ -90,8 +85,11 @@
                     <td><span class="badge bg-secondary">{{ r.board }}</span></td>
                     <td class="col-activate">{{ r.activate_local.strftime('%d.%m.%Y %H:%M') }}</td>
                     <td>
-                        {{ r.periodic_label }}
-                        {% if r.oneshot %}<span class="badge badge-oneshot ms-1">oneshot</span>{% endif %}
+                        {% if r.oneshot %}
+                            <span class="badge badge-oneshot">oneshot</span>
+                        {% else %}
+                            {{ r.periodic_label }}
+                        {% endif %}
                     </td>
                     <td>
                         {% if r.is_due %}

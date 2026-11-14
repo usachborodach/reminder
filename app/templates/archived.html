@@ -33,7 +33,13 @@
                     </td>
                     <td>{{ r.board }}</td>
                     <td>{{ r.activate_local.strftime('%d.%m.%Y %H:%M') }}</td>
-                    <td>{{ r.periodic_label }}</td>
+                    <td>
+                        {% if r.oneshot %}
+                            <span class="badge badge-oneshot">oneshot</span>
+                        {% else %}
+                            {{ r.periodic_label }}
+                        {% endif %}
+                    </td>
                     <td>
                         <form method="post" action="{{ url_for('main.reminder_unarchive', rid=r.id_str) }}" class="d-inline">
                             <button class="btn btn-outline-secondary btn-sm">Вернуть</button>

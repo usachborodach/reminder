@@ -73,6 +73,25 @@ def describe_periodic(periodic: dict | None) -> str:
     return f"{periodic['number']} {UNIT_LABELS.get(periodic['unit'], periodic['unit'])}"
 
 
+def describe_reminder_params(reminder: dict, tz: str) -> str:
+    """Краткое описание параметров напоминалки для description карточки Wekan."""
+    lines = ['**Параметры напоминалки:**', '']
+    if reminder.get('oneshot'):
+        lines.append('- Тип: одноразовая (oneshot)')
+    else:
+        lines.append('- Тип: повторяющаяся')
+        lines.append(f"- Период: {describe_periodic(reminder.get('periodic'))}")
+    if reminder.get('auto_postpone'):
+        lines.append('- Отсрочка: автоматическая, сразу после отправки (auto_postpone)')
+    else:
+        lines.append('- Отсрочка: после закрытия карточки в Wekan')
+    dt = reminder.get('activate_datetime')
+    if dt:
+        local = utc_to_local(dt, tz)
+        lines.append(f"- Сработка: {local.strftime('%d.%m.%Y %H:%M')} ({tz})")
+    return '\n'.join(lines)
+
+
 def project_occurrences(reminder: dict, until_dt: datetime, max_iter: int = 200):
     """Вернуть список будущих сработок напоминалки до `until_dt`."""
     if reminder.get('archived'):

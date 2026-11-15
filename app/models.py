@@ -57,8 +57,17 @@ def _post_card(reminder: dict) -> str:
     return client.post_card(
         title=reminder.get('text', ''),
         board=reminder.get('board', ''),
-        description=reminder.get('description', ''),
+        description=_build_card_description(reminder, current_app.config['TIMEZONE']),
     )
+
+
+def _build_card_description(reminder: dict, tz: str) -> str:
+    """Описание карточки: пользовательский текст + параметры напоминалки."""
+    from .utils import describe_reminder_params
+
+    desc = (reminder.get('description') or '').strip()
+    params = describe_reminder_params(reminder, tz)
+    return f"{desc}\n\n{params}" if desc else params
 
 
 def send_and_postpone(reminder: dict) -> None:

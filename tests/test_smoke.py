@@ -32,3 +32,26 @@ def test_random_periodic():
 def test_describe():
     assert describe_periodic({'type': 'static', 'unit': 'month', 'number': 3}) == '3 мес.'
     assert describe_periodic({'type': 'random', 'mindays': 1, 'maxdays': 3}) == '~1–3 дн.'
+
+
+def test_card_description_contains_params():
+    from app.models import _build_card_description
+    reminder = {
+        'description': 'Проверить почту',
+        'oneshot': False,
+        'periodic': {'type': 'random', 'mindays': 6, 'maxdays': 11},
+        'auto_postpone': False,
+        'activate_datetime': datetime(2026, 11, 20, 7, 0),
+    }
+    desc = _build_card_description(reminder, 'Europe/Moscow')
+    assert desc.startswith('Проверить почту\n\n')
+    assert 'Параметры напоминалки' in desc
+    assert '~6–11 дн.' in desc
+    assert 'повторяющаяся' in desc
+    assert '20.11.2026 10:00' in desc
+    # без пользовательского описания — только параметры
+    reminder2 = {'oneshot': True, 'auto_postpone': True,
+                 'activate_datetime': datetime(2026, 12, 1, 10, 30)}
+    desc2 = _build_card_description(reminder2, 'Europe/Moscow')
+    assert desc2.startswith('**Параметры напоминалки:**')
+    assert 'одноразовая' in desc2

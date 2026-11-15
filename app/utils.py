@@ -69,7 +69,7 @@ def describe_periodic(periodic: dict | None) -> str:
     if not periodic:
         return '—'
     if periodic.get('type') == 'random':
-        return f"~{periodic.get('mindays')}–{periodic.get('maxdays')} дн. (random)"
+        return f"~{periodic.get('mindays')}–{periodic.get('maxdays')} дн."
     return f"{periodic['number']} {UNIT_LABELS.get(periodic['unit'], periodic['unit'])}"
 
 

@@ -31,4 +31,4 @@ def test_random_periodic():
 
 def test_describe():
     assert describe_periodic({'type': 'static', 'unit': 'month', 'number': 3}) == '3 мес.'
-    assert 'random' in describe_periodic({'type': 'random', 'mindays': 1, 'maxdays': 3})
+    assert describe_periodic({'type': 'random', 'mindays': 1, 'maxdays': 3}) == '~1–3 дн.'

@@ -156,6 +156,21 @@ def check_card_and_postpone(reminder: dict) -> None:
     now = now_utc()
     next_dt = compute_next_activate(reminder.get('periodic'), now)
 
+    if next_dt is None:
+        # periodic отсутствует (например, напоминалку сделали oneshot
+        # после отправки) — следующей сработки нет, архивируем.
+        reminders().update_one(
+            {'_id': reminder['_id']},
+            {'$set': {
+                'sended': True,
+                'link_to_wekan_card': None,
+                'archived': True,
+            }},
+        )
+        log_event(reminder, 'card_closed', {'card_id': card_id})
+        log_event(reminder, 'archived_auto')
+        return
+
     reminders().update_one(
         {'_id': reminder['_id']},
         {'$set': {
